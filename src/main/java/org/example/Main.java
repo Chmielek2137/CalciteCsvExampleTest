@@ -32,11 +32,14 @@ public class Main {
     static void testPrepared() throws SQLException {
         final Properties properties = new Properties();
         properties.setProperty("caseSensitive", "true");
-        try (Connection connection = DriverManager.getConnection("jdbc:calcite:", properties)) {
-            final CalciteConnection calciteConnection =
-                    connection.unwrap(CalciteConnection.class);
+        //zmienić schema.directory=D:\\sales" na ścieżkę gdzie jest wasz folder sales
+        try (Connection connection = DriverManager.getConnection("jdbc:calcite:schemaType=CUSTOM; schemaFactory=org.apache.calcite.adapter.csv.CsvSchemaFactory; schema=sales; schema.directory=D:\\sales")) {
+            final CalciteConnection calciteConnection = connection.unwrap(CalciteConnection.class);
 
-            System.out.println("prop: " + connection.getMetaData().isReadOnly());
+            //System.out.println("prop: " + connection.getMetaData().isReadOnly());
+
+            //System.out.println(calciteConnection.getRootSchema().getSubSchema(connection.getSchema()));
+
 
 //            SchemaPlus rootSchema = calciteConnection.getRootSchema();
 //            final DataSource ds = JdbcSchema.dataSource("jdbc:postgresql://localhost:5432/test1",
@@ -50,13 +53,13 @@ public class Main {
 //                System.out.println(rs.getString(1) + '=' + rs.getString(2));
 //            }
 
-            final Schema schema =
-                    CsvSchemaFactory.INSTANCE
-                            .create(calciteConnection.getRootSchema(), null,
-                                    ImmutableMap.of("directory",
-                                            resourcePath("sales"), "flavor", "scannable"));
-            calciteConnection.getRootSchema().add("MYSCHEMA", schema);
-            final String sql = "select \"station_id\", \"name\" from \"MYSCHEMA\".\"STATION\"";
+//            final Schema schema =
+//                    CsvSchemaFactory.INSTANCE
+//                            .create(calciteConnection.getRootSchema(), null,
+//                                    ImmutableMap.of("directory",
+//                                            resourcePath("sales"), "flavor", "scannable"));
+//            calciteConnection.getRootSchema().add("MYSCHEMA", schema);
+            final String sql = "select \"station_id\", \"name\" from \"sales\".\"STATION\"";
             final PreparedStatement statement2 =
                     calciteConnection.prepareStatement(sql);
 
